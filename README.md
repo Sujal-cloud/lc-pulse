@@ -62,7 +62,7 @@ Planned:
 - CSS
 - Node.js
 - Express
-- MongoDB
+- PostgreSQL
 - Chart.js
 
 ## Project Status

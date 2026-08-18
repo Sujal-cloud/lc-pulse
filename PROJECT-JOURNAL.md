@@ -33,3 +33,19 @@ on activity streaks.
 Historical data is essential because the purpose of LC Pulse is to show
 long-term progress rather than only activity after the application is
 installed.
+
+### Database Decision
+
+PostgreSQL was selected as the database for LC Pulse.
+
+The application's core data is relational, with users, problems,
+submissions, and first-solved records having clear relationships.
+The application will also rely heavily on historical queries and
+aggregation for daily, monthly, yearly, and all-time analytics.
+
+PostgreSQL was therefore chosen because its relational model,
+constraints, and SQL aggregation capabilities are a strong fit for
+the application's requirements.
+
+Prisma will be used as the ORM to provide a structured interface
+between the Node.js backend and PostgreSQL.
