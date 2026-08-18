@@ -1,96 +1,35 @@
 # LC Pulse — Development Journal
 
-## Day 1 — August 18, 2026
+### Day 1 — Architecture Discussion
 
-### Project Origin
+The initial architecture was designed around separating data acquisition,
+data processing, persistence, API delivery, and frontend presentation.
 
-The idea for LC Pulse came from my own experience practicing
-LeetCode.
+The application will not store daily totals as its primary source of
+truth. Instead, individual problems and submission events will be stored,
+allowing daily, monthly, yearly, and all-time statistics to be derived
+from the underlying data.
 
-LeetCode provides useful activity metrics such as streaks and total
-problems solved, but these metrics do not clearly distinguish between
-solving a problem for the first time and revisiting a problem that has
-already been solved.
+A sync layer will be placed between LeetCode and the application so that
+changes to the method of obtaining LeetCode data do not require changes
+to the frontend or analytics system.
 
-Since I regularly revisit problems for practice, I wanted a way to
-measure my actual rate of solving new problems.
+### Important Design Decision
 
-For example, if I solve five problems in a day but three of them are
-revisions, my actual new-problem progress is only two.
+The system must support two types of synchronization:
 
-I could not find a tool focused specifically on this metric, which led
-to the idea for LC Pulse.
+1. Initial historical synchronization to reconstruct previous
+   first-solved dates.
+2. Incremental synchronization to process newly submitted solutions.
 
-### Initial Problem Statement
+### New Metric: Learning Velocity
 
-How can a developer accurately track their unique problem-solving
-progress over time while separating first-time solves from repeated
-practice?
+LC Pulse will measure the rate of solving genuinely new problems,
+including short-term and long-term velocity, rather than relying only
+on activity streaks.
 
-### Initial Product Idea
+### Key Challenge Identified
 
-LC Pulse will track the first Accepted solution of every problem and
-associate it with the date on which the problem was first solved.
-
-This historical data will be used to calculate daily, monthly, yearly,
-and all-time problem-solving progress.
-
-### Initial Product Decisions
-
-1. Daily statistics will be accessed through a calendar rather than an
-   infinitely growing daily table.
-
-2. Selecting a date will display detailed statistics for that day.
-
-3. New problems and repeated practice will be treated as separate
-   metrics.
-
-4. Monthly and yearly analytics will provide a higher-level view of
-   progress.
-
-5. LeetCode will be the primary integration.
-
-6. GitHub and GeeksForGeeks may be added later as optional
-   integrations.
-
-7. The project will be developed incrementally rather than being
-   created as one large initial commit.
-
-### Why This Project Is Different
-
-LC Pulse is not intended to be a general coding-profile aggregator.
-
-Its primary purpose is longitudinal problem-solving analytics:
-understanding how quickly a developer is actually learning and solving
-new problems over time.
-
-### Initial Tech Direction
-
-The planned stack is:
-
-- React
-- JavaScript
-- HTML/CSS
-- Node.js
-- Express
-- MongoDB
-- Chart.js
-
-React will be learned and implemented progressively as part of the
-project rather than being treated as a black box.
-
-### What I Learned Today
-
-- Defined the actual problem the project is solving.
-- Distinguished activity from genuine new-problem progress.
-- Defined the first Accepted submission as the source of truth for a
-  new problem.
-- Established the initial product scope.
-- Decided to document the project throughout development.
-
-### Next
-
-- Design the system architecture.
-- Design the database model.
-- Define the data required from LeetCode.
-- Define the API requirements.
+Historical data is essential because the purpose of LC Pulse is to show
+long-term progress rather than only activity after the application is
+installed.
