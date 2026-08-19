@@ -23,10 +23,12 @@ async function main() {
 
         let offset = 0;
 
-        let totalSubmissions = 0;
-        let acceptedSubmissions = 0;
-
         const uniqueProblems = new Map();
+        const activityDates = new Set();
+
+        // ------------------------------------------
+        // FETCH COMPLETE SUBMISSION HISTORY
+        // ------------------------------------------
 
         while (true) {
 
@@ -38,26 +40,34 @@ async function main() {
             });
 
             if (submissions.length === 0) {
-                console.log("\nNo more submissions.");
+                console.log("\n✅ Reached end of submission history.");
                 break;
             }
 
-            totalSubmissions += submissions.length;
-
             for (const submission of submissions) {
 
+                // Every submission counts as an active day
+                const submissionDate = new Date(
+                    Number(submission.timestamp)
+                );
+            
+                const dateString =
+                    submissionDate.toLocaleDateString("en-CA", {
+                        timeZone: "Asia/Kolkata"
+                    });
+                
+                activityDates.add(dateString);
+                
+                
+                // Only Accepted submissions matter for NEW problems
                 if (submission.statusDisplay !== "Accepted") {
                     continue;
                 }
 
-                acceptedSubmissions++;
-
                 const slug = submission.titleSlug;
+                const timestamp = Number(submission.timestamp);
 
-                const timestamp = Number(
-                    submission.timestamp
-                );
-
+                // First time seeing this problem
                 if (!uniqueProblems.has(slug)) {
 
                     uniqueProblems.set(slug, {
@@ -68,93 +78,214 @@ async function main() {
 
                 } else {
 
-                    const existing =
-                        uniqueProblems.get(slug);
+                    // We may encounter an older Accepted submission
+                    // for the same problem.
+                    const existing = uniqueProblems.get(slug);
 
                     if (timestamp < existing.firstSolvedAt) {
-
                         existing.firstSolvedAt = timestamp;
                     }
                 }
             }
 
             console.log(
-                `   Retrieved: ${submissions.length}`
+                `   Unique problems so far: ${uniqueProblems.size}`
             );
-
-            console.log(
-                `   Total submissions: ${totalSubmissions}`
-            );
-
-            console.log(
-                `   Accepted submissions: ${acceptedSubmissions}`
-            );
-
-            console.log(
-                `   Unique problems: ${uniqueProblems.size}`
-            );
-
-            console.log();
 
             if (submissions.length < PAGE_SIZE) {
-                console.log(
-                    "Reached the end of submission history."
-                );
                 break;
             }
 
             offset += PAGE_SIZE;
         }
 
-        console.log("\n====================================");
-        console.log("       HISTORICAL ANALYSIS");
-        console.log("====================================");
+        // ------------------------------------------
+        // DAILY FIRST-SOLVE COUNTS
+        // ------------------------------------------
 
-        console.log(
-            `Total submissions: ${totalSubmissions}`
-        );
+        const dailyNewProblems = new Map();
 
-        console.log(
-            `Accepted submissions: ${acceptedSubmissions}`
-        );
+        for (const problem of uniqueProblems.values()) {
+
+            const date = new Date(problem.firstSolvedAt);
+
+            const dateString =
+                date.toLocaleDateString("en-CA", {
+                    timeZone: "Asia/Kolkata"
+                });
+
+            if (!dailyNewProblems.has(dateString)) {
+                dailyNewProblems.set(dateString, []);
+            }
+
+            dailyNewProblems
+                .get(dateString)
+                .push(problem);
+        }
+
+        // ------------------------------------------
+        // SORT DATES
+        // ------------------------------------------
+
+        const sortedDates =
+            [...dailyNewProblems.keys()].sort();
+
+        // ------------------------------------------
+        // DAILY TIMELINE
+        // ------------------------------------------
+
+        console.log("\n");
+        console.log("========================================");
+        console.log("        LC PULSE DAILY TIMELINE");
+        console.log("========================================");
+
+        let cumulativeTotal = 0;
+
+        for (const date of sortedDates) {
+
+            const problems = dailyNewProblems.get(date);
+
+            cumulativeTotal += problems.length;
+
+            console.log(
+                `${date} → +${problems.length} new → ${cumulativeTotal} total`
+            );
+
+            for (const problem of problems) {
+
+                console.log(
+                    `    • ${problem.title}`
+                );
+            }
+        }
+
+        // ------------------------------------------
+        // MONTHLY ANALYTICS
+        // ------------------------------------------
+
+        const monthlyStats = new Map();
+
+        // First: calculate new problems
+        for (const date of sortedDates) {
+        
+            const month = date.substring(0, 7);
+        
+            const newProblems =
+                dailyNewProblems.get(date).length;
+        
+            if (!monthlyStats.has(month)) {
+            
+                monthlyStats.set(month, {
+                    newProblems: 0,
+                    newProblemDays: 0,
+                    activeDays: 0
+                });
+            }
+        
+            const stats = monthlyStats.get(month);
+        
+            stats.newProblems += newProblems;
+            stats.newProblemDays++;
+        }
+
+
+        // Second: calculate ALL active days
+        for (const date of activityDates) {
+        
+            const month = date.substring(0, 7);
+        
+            if (!monthlyStats.has(month)) {
+            
+                monthlyStats.set(month, {
+                    newProblems: 0,
+                    newProblemDays: 0,
+                    activeDays: 0
+                });
+            }
+        
+            const stats = monthlyStats.get(month);
+        
+            stats.activeDays++;
+        }
+
+        // ------------------------------------------
+        // MONTHLY TIMELINE
+        // ------------------------------------------
+
+        console.log("\n");
+        console.log("========================================");
+        console.log("        LC PULSE MONTHLY ANALYTICS");
+        console.log("========================================");
+
+        let totalBeforeMonth = 0;
+
+        for (const [month, stats] of monthlyStats) {
+
+            const startingTotal = totalBeforeMonth;
+
+            const endingTotal =
+                startingTotal + stats.newProblems;
+
+            const average =
+                stats.activeDays === 0
+                    ? 0
+                    : stats.newProblems / stats.activeDays;
+
+            console.log(`\n${month}`);
+
+            console.log(
+                `Starting total: ${startingTotal}`
+            );
+
+            console.log(
+                `New problems:   +${stats.newProblems}`
+            );
+
+            console.log(
+                `Ending total:   ${endingTotal}`
+            );
+
+            console.log(
+                `Active days:    ${stats.activeDays}`
+            );
+
+            console.log(
+                `New-problem days: ${stats.newProblemDays}`
+            );
+
+            console.log(
+                `Avg new/day:    ${average.toFixed(2)}`
+            );
+
+            totalBeforeMonth = endingTotal;
+        }
+
+        // ------------------------------------------
+        // FINAL SUMMARY
+        // ------------------------------------------
+
+        console.log("\n");
+        console.log("========================================");
+        console.log("             FINAL SUMMARY");
+        console.log("========================================");
 
         console.log(
             `Unique problems: ${uniqueProblems.size}`
         );
 
-        // Find earliest solved problem
-        let earliest = null;
+        console.log(
+            `First solve date: ${sortedDates[0]}`
+        );
 
-        for (const problem of uniqueProblems.values()) {
+        console.log(
+            `Latest solve date: ${sortedDates[sortedDates.length - 1]}`
+        );
 
-            if (
-                earliest === null ||
-                problem.firstSolvedAt < earliest.firstSolvedAt
-            ) {
-                earliest = problem;
-            }
-        }
-
-        if (earliest) {
-
-            const date = new Date(
-                earliest.firstSolvedAt
-            );
-
-            console.log(
-                `\nEarliest solved problem: ${earliest.title}`
-            );
-
-            console.log(
-                `First solved: ${date.toLocaleString("en-IN")}`
-            );
-        }
-
-        console.log("====================================");
+        console.log("========================================");
 
     } catch (error) {
 
-        console.log("\n❌ Historical analysis failed.");
+        console.log("\n❌ Analytics generation failed.");
 
         console.log(error.message);
     }
