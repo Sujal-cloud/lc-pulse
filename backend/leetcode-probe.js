@@ -1,88 +1,37 @@
-const axios = require("axios");
+const { LeetCode, Credential } = require("leetcode-query");
 require("dotenv").config();
 
-const USERNAME = process.env.LEETCODE_USERNAME;
-const URL = "https://leetcode.com/graphql";
-
-const query = `
-query userProfile($username: String!) {
-    matchedUser(username: $username) {
-        username
-        profile {
-            realName
-            aboutMe
-            userAvatar
-            ranking
-            reputation
-        }
-        submitStats {
-            acSubmissionNum {
-                difficulty
-                count
-            }
-        }
-    }
-}
-`;
+const SESSION = process.env.LEETCODE_SESSION;
 
 async function main() {
+    if (!SESSION) {
+        console.log("❌ LEETCODE_SESSION is missing from .env");
+        return;
+    }
+
     try {
-        console.log(`Checking LeetCode user: ${USERNAME}...\n`);
+        console.log("🔐 Initializing LeetCode authentication...");
 
-        const response = await axios.post(
-            URL,
-            {
-                query,
-                variables: {
-                    username: USERNAME
-                }
-            },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    "User-Agent": "Mozilla/5.0"
-                }
-            }
-        );
+        const credential = new Credential();
 
-        const data = response.data;
+        await credential.init(SESSION);
 
-        if (data.errors) {
-            console.error("LeetCode returned an error:");
-            console.error(data.errors);
-            return;
-        }
+        const leetcode = new LeetCode(credential);
 
-        const user = data.data.matchedUser;
+        console.log("✅ Authentication initialized.");
+        console.log("📥 Fetching submissions...\n");
 
-        if (!user) {
-            console.log("User not found.");
-            return;
-        }
+        const result = await leetcode.submissions({
+            limit: 20,
+            offset: 0
+        });
 
-        console.log("✅ User found!\n");
-
-        console.log("Username:", user.username);
-        console.log("Name:", user.profile.realName || "Not provided");
-        console.log("Ranking:", user.profile.ranking);
-
-        console.log("\nSolved problems:");
-
-        for (const item of user.submitStats.acSubmissionNum) {
-            console.log(
-                `${item.difficulty}: ${item.count}`
-            );
-        }
+        console.log("Raw result:");
+        console.dir(result, { depth: null });
 
     } catch (error) {
-        console.error("\n❌ Request failed.");
-
-        if (error.response) {
-            console.error("Status:", error.response.status);
-            console.error("Response:", error.response.data);
-        } else {
-            console.error(error.message);
-        }
+        console.log("\n❌ Historical submission probe failed.");
+        console.log(error.message);
     }
 }
 
