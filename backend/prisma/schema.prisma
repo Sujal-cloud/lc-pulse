@@ -1,0 +1,103 @@
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  moduleFormat           = "cjs"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id              String        @id @default(cuid())
+  leetcodeUsername String       @unique
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  submissions     Submission[]
+  solvedProblems  UserProblem[]
+  syncRuns        SyncRun[]
+}
+
+
+model Problem {
+  id              String        @id @default(cuid())
+
+  title           String
+  slug            String        @unique
+  difficulty      String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  submissions     Submission[]
+  solvedBy        UserProblem[]
+}
+
+
+model Submission {
+  id              String        @id @default(cuid())
+
+  leetcodeId      String        @unique
+  title           String
+  slug            String
+
+  status          String
+  language        String?
+  timestamp       DateTime
+
+  userId          String
+  problemId       String
+
+  user            User          @relation(fields: [userId], references: [id])
+  problem         Problem       @relation(fields: [problemId], references: [id])
+
+  createdAt       DateTime      @default(now())
+
+  @@index([userId, timestamp])
+  @@index([problemId, timestamp])
+  @@index([userId, status])
+}
+
+
+model UserProblem {
+  id              String        @id @default(cuid())
+
+  userId          String
+  problemId       String
+
+  firstSolvedAt   DateTime
+
+  user            User          @relation(fields: [userId], references: [id])
+  problem         Problem       @relation(fields: [problemId], references: [id])
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, problemId])
+  @@index([userId, firstSolvedAt])
+}
+
+
+model SyncRun {
+  id              String        @id @default(cuid())
+
+  userId          String
+
+  startedAt       DateTime      @default(now())
+  completedAt     DateTime?
+
+  status          String
+  submissionsRead Int           @default(0)
+  problemsFound   Int           @default(0)
+
+  errorMessage    String?
+
+  user            User          @relation(fields: [userId], references: [id])
+
+  @@index([userId, startedAt])
+}

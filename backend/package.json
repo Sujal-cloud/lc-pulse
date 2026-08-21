@@ -10,8 +10,15 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
     "axios": "^1.19.0",
     "dotenv": "^17.4.2",
-    "leetcode-query": "^2.0.1"
+    "leetcode-query": "^2.0.1",
+    "pg": "^8.23.0",
+    "prisma": "^7.9.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.12"
   }
 }
