@@ -949,3 +949,25 @@ The Progress Journey now answers:
 Next stage:
 
 Build the Learning Calendar visualization using daily learning activity data.
+
+Day 5:
+
+Built the analytics visualization layer for LC Pulse.
+
+Implemented:
+- Dashboard statistics cards
+- Cumulative progress graph
+- Year based filtering
+- Monthly aggregation logic
+- Learning activity calendar heatmap
+- Daily activity intensity visualization
+
+Learned:
+- React useEffect for API calls
+- useState for managing UI data
+- Transforming backend responses for frontend visualization
+- Creating reusable utility functions
+- Component based React architecture
+
+Next:
+Improve calendar interactions and continue building advanced analytics features.
