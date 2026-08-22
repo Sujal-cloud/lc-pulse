@@ -919,3 +919,33 @@ Build interactive analytics visualizations using cumulative progress data.
 
 
 Axios provides a centralized HTTP client layer instead of directly calling fetch everywhere. It allows reusable configuration like base URLs and interceptors.
+
+**### Progress Journey Visualization**
+
+Implemented the first interactive analytics visualization for LC Pulse.
+
+Built:
+
+- ProgressChart component using Recharts.
+- Integrated cumulative progress API data.
+- Added year-wise filtering for historical comparison.
+- Converted daily cumulative data into monthly snapshots for better readability.
+- Added custom tooltip for learning milestones.
+- Improved chart scaling and axis formatting for a cleaner analytics experience.
+
+
+Technical decisions:
+
+- Kept PostgreSQL as the single source of truth.
+- Performed visualization-specific data transformation on the frontend.
+- Used monthly aggregation because daily points created unnecessary noise for long-term learning analysis.
+
+
+The Progress Journey now answers:
+
+"How has my problem-solving ability evolved over time?"
+
+
+Next stage:
+
+Build the Learning Calendar visualization using daily learning activity data.

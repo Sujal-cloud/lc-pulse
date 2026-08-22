@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import StatCard from "../components/StatCard";
+import ProgressChart from "../components/ProgressChart";
 
 function Dashboard() {
 
@@ -102,23 +103,7 @@ function Dashboard() {
 
 
         <section className="mt-10">
-
-          <div className="rounded-2xl border border-gray-800 bg-white/5 backdrop-blur-md p-8">
-
-            <h2 className="text-xl font-semibold">
-              Progress Journey
-            </h2>
-
-            <p className="text-gray-400 mt-2">
-              Track how your problem-solving ability evolved over time.
-            </p>
-
-            <p className="text-gray-500 text-sm mt-4">
-              Your cumulative growth curve will appear here.
-            </p>
-
-          </div>
-
+            <ProgressChart />
         </section>
 
 
