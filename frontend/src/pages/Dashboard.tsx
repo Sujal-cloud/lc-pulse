@@ -3,6 +3,7 @@ import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import StatCard from "../components/StatCard";
 import ProgressChart from "../components/ProgressChart";
+import LearningCalendar from "../components/LearningCalendar";
 
 function Dashboard() {
 
@@ -52,31 +53,66 @@ function Dashboard() {
   }, []);
 
 
+
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-950 to-black text-white">
+    <div className="
+      min-h-screen
+      bg-gradient-to-br
+      from-black
+      via-gray-950
+      to-black
+      text-white
+    ">
 
       <Navbar />
 
 
-      <main className="px-8 py-10">
+      <main className="
+        px-6
+        py-8
+        max-w-[1600px]
+        mx-auto
+      ">
 
+
+
+        {/* Hero */}
 
         <section>
 
-          <h1 className="text-4xl font-bold">
+          <h1 className="
+            text-3xl
+            font-bold
+          ">
             Your Learning Journey
           </h1>
 
-          <p className="text-gray-400 mt-2">
+
+          <p className="
+            text-gray-400
+            mt-2
+            text-sm
+          ">
             Understand your real LeetCode growth beyond submission counts.
           </p>
+
 
         </section>
 
 
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+
+
+        {/* Stats */}
+
+        <section className="
+          grid
+          grid-cols-1
+          md:grid-cols-3
+          gap-5
+          mt-8
+        ">
 
 
           <StatCard
@@ -102,39 +138,41 @@ function Dashboard() {
 
 
 
-        <section className="mt-10">
-            <ProgressChart />
-        </section>
 
+        {/* Progress */}
 
+        <section className="
+          mt-8
+        ">
 
-
-        <section className="mt-6">
-
-          <div className="rounded-2xl border border-gray-800 bg-white/5 backdrop-blur-md p-8">
-
-            <h2 className="text-xl font-semibold">
-              Learning Calendar
-            </h2>
-
-            <p className="text-gray-400 mt-2">
-              Explore your consistent learning days and problem-solving activity.
-            </p>
-
-            <p className="text-gray-500 text-sm mt-4">
-              Click a day to discover solved problems.
-            </p>
-
-          </div>
+          <ProgressChart />
 
         </section>
+
+
+
+
+
+        {/* Calendar */}
+
+        <section className="
+          mt-6
+        ">
+
+          <LearningCalendar />
+
+        </section>
+
 
 
       </main>
 
+
     </div>
 
   );
+
 }
+
 
 export default Dashboard;
